@@ -12,7 +12,7 @@ app = FastAPI(title="MasterDAO | Advanced Control Panel")
 def read_root():
     html_content = """
     <!DOCTYPE html>
-    <html lang="id">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,7 +55,6 @@ def read_root():
                 width: 0;
             }
 
-            /* Efek Mengetik */
             @keyframes typing {
                 from { width: 0 }
                 to { width: 100% }
@@ -98,7 +97,7 @@ def read_root():
                 z-index: 1;
                 position: relative;
                 overflow: hidden;
-                animation: float 6s ease-in-out infinite; /* Efek melayang */
+                animation: float 6s ease-in-out infinite;
             }
 
             @keyframes float {
@@ -181,7 +180,8 @@ def read_root():
         <div id="main-ui">
             <div id="particles-js"></div>
             <div class="panel">
-                <div class="scanline"></div> <div class="logo-container">
+                <div class="scanline"></div>
+                <div class="logo-container">
                     <div class="logo">🛰️</div>
                     <div class="logo-glow"></div>
                 </div>
@@ -206,12 +206,12 @@ def read_root():
                 const bootScreen = document.getElementById('boot-screen');
                 const mainUi = document.getElementById('main-ui');
                 
-                bootScreen.style.opacity = '0'; // Hilangkan layar hitam
+                bootScreen.style.opacity = '0';
                 setTimeout(() => {
                     bootScreen.style.display = 'none';
-                    mainUi.classList.add('visible'); // Munculkan panel
+                    mainUi.classList.add('visible');
                 }, 1000);
-            }, 3500); // Durasi loading 3.5 detik
+            }, 3500);
 
             // Efek Partikel
             particlesJS("particles-js", {
@@ -279,41 +279,6 @@ async def mcp_receive_command(agent_id: str, request: Request):
                 "tools": [
                     {
                         "name": "analyze_wallet",
-                        "description": "Analyze wallet addresses and transaction history on the Base network",
-                        "inputSchema": {
-                            "type": "object",
-                            "properties": {
-                                "address": {"type": "string", "description": "Target 0x wallet address"}
-                            },
-                            "required": ["address"]
-                        }
-                    }
-                ]
-            }
-            
-        elif method == "prompts/list":
-            result_data = {
-                "prompts": [
-                    {
-                        "name": "generate_report",
-                        "description": "Generate comprehensive Web3 smart contract audit and security reports"
-                    }
-                ]
-            }
-            
-        elif method == "resources/list":
-            result_data = {
-                "resources": []
-            }
-            
-        else:
-            result_data = {"status": "success", "message": f"Command received for {agent_id}"}
-        # 2. Jika 8004scan meminta daftar Tools (Sekarang ada 5 Tools Keren)
-        elif method == "tools/list":
-            result_data = {
-                "tools": [
-                    {
-                        "name": "analyze_wallet",
                         "description": "Analyze wallet addresses and transaction history on the Base network.",
                         "inputSchema": {
                             "type": "object",
@@ -372,7 +337,6 @@ async def mcp_receive_command(agent_id: str, request: Request):
                 ]
             }
             
-        # 3. Jika 8004scan meminta daftar Prompts (Sekarang ada 3 Prompts)
         elif method == "prompts/list":
             result_data = {
                 "prompts": [
@@ -391,11 +355,14 @@ async def mcp_receive_command(agent_id: str, request: Request):
                 ]
             }
             
-        # 4. Jika 8004scan meminta daftar Resources
         elif method == "resources/list":
             result_data = {
                 "resources": []
             }
+            
+        # Penutup 'else' HARUS selalu berada di paling akhir blok IF/ELIF
+        else:
+            result_data = {"status": "success", "message": f"Command received for {agent_id}"}
 
         response_payload = {
             "jsonrpc": "2.0",
