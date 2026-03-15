@@ -243,7 +243,6 @@ def read_root():
 
 @app.get("/mcp/{agent_id}")
 def mcp_health_check(agent_id: str):
-    # GET request biasanya hanya untuk cek ping awal
     return JSONResponse(
         status_code=200,
         content={"status": "Healthy", "message": "MCP Endpoint Active"}
@@ -254,15 +253,13 @@ async def mcp_receive_command(agent_id: str, request: Request):
     try:
         req_data = await request.json()
         
-        # Mengambil ID dan Method dari permintaan 8004scan (Standar JSON-RPC)
         req_id = req_data.get("id", 1)
         method = req_data.get("method", "")
         
-        print(f"[*] Agen {agent_id} menerima request method: {method}")
+        print(f"[*] Agent {agent_id} received request method: {method}")
 
         result_data = {}
 
-        # 1. Jika 8004scan meminta inisialisasi awal
         if method == "initialize":
             result_data = {
                 "protocolVersion": "2024-11-05",
@@ -277,17 +274,16 @@ async def mcp_receive_command(agent_id: str, request: Request):
                 }
             }
             
-        # 2. Jika 8004scan meminta daftar Tools
         elif method == "tools/list":
             result_data = {
                 "tools": [
                     {
                         "name": "analyze_wallet",
-                        "description": "Menganalisa dompet di jaringan Base",
+                        "description": "Analyze wallet addresses and transaction history on the Base network",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
-                                "address": {"type": "string"}
+                                "address": {"type": "string", "description": "Target 0x wallet address"}
                             },
                             "required": ["address"]
                         }
@@ -295,28 +291,24 @@ async def mcp_receive_command(agent_id: str, request: Request):
                 ]
             }
             
-        # 3. Jika 8004scan meminta daftar Prompts
         elif method == "prompts/list":
             result_data = {
                 "prompts": [
                     {
                         "name": "generate_report",
-                        "description": "Membuat laporan audit Web3"
+                        "description": "Generate comprehensive Web3 smart contract audit and security reports"
                     }
                 ]
             }
             
-        # 4. Jika 8004scan meminta daftar Resources
         elif method == "resources/list":
             result_data = {
                 "resources": []
             }
             
-        # 5. Balasan default jika method lain
         else:
             result_data = {"status": "success", "message": f"Command received for {agent_id}"}
 
-        # Membungkus jawaban ke dalam format amplop JSON-RPC 2.0 yang sah
         response_payload = {
             "jsonrpc": "2.0",
             "id": req_id,
@@ -326,7 +318,6 @@ async def mcp_receive_command(agent_id: str, request: Request):
         return JSONResponse(status_code=200, content=response_payload)
 
     except Exception as e:
-        # Jika terjadi error parsing
         return JSONResponse(status_code=200, content={
             "jsonrpc": "2.0",
             "id": None,
@@ -334,5 +325,7 @@ async def mcp_receive_command(agent_id: str, request: Request):
         })
 
 if __name__ == "__main__":
+    import os
     port = int(os.environ.get("PORT", 8000))
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=port)
