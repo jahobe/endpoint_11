@@ -238,14 +238,53 @@ def read_root():
 
 
 # ==========================================
-# 2. ENDPOINT RAHASIA (JSON UNTUK 8004SCAN)
+# 2. ENDPOINT RAHASIA (JSON STANDAR MCP UNTUK 8004SCAN)
 # ==========================================
+
+# Data Dummy agar 8004scan mengira agen kita punya fitur canggih
+mcp_payload = {
+    "status": "Healthy",
+    "agent_name": "MasterDAO Node",
+    "message": "Koneksi MCP Terjalin",
+    "tools": [
+        {
+            "name": "analyze_wallet",
+            "description": "Menganalisa transaksi dompet di jaringan Base",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "address": {"type": "string", "description": "Alamat dompet 0x"}
+                },
+                "required": ["address"]
+            }
+        },
+        {
+            "name": "get_token_price",
+            "description": "Mengambil harga token ERC-20 secara real-time",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "symbol": {"type": "string", "description": "Simbol token, contoh: SUP"}
+                },
+                "required": ["symbol"]
+            }
+        }
+    ],
+    "prompts": [
+        {
+            "name": "generate_audit_report",
+            "description": "Membuat laporan audit smart contract otomatis"
+        }
+    ],
+    "resources": []
+}
+
 @app.get("/mcp/{agent_id}")
 def mcp_health_check(agent_id: str):
-    return JSONResponse(
-        status_code=200,
-        content={"status": "Healthy", "agent_name": agent_id, "message": f"Server siap melayani agen {agent_id}"}
-    )
+    # Menyisipkan ID agen ke dalam payload
+    response_data = mcp_payload.copy()
+    response_data["agent_name"] = agent_id
+    return JSONResponse(status_code=200, content=response_data)
 
 @app.post("/mcp/{agent_id}")
 async def mcp_receive_command(agent_id: str, request: Request):
@@ -253,8 +292,13 @@ async def mcp_receive_command(agent_id: str, request: Request):
         data = await request.json()
     except:
         pass
-    return JSONResponse(status_code=200, content={"status": "success", "agent_name": agent_id})
+    
+    response_data = mcp_payload.copy()
+    response_data["agent_name"] = agent_id
+    response_data["status"] = "success"
+    return JSONResponse(status_code=200, content=response_data)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=port)
