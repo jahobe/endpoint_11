@@ -308,6 +308,94 @@ async def mcp_receive_command(agent_id: str, request: Request):
             
         else:
             result_data = {"status": "success", "message": f"Command received for {agent_id}"}
+        # 2. Jika 8004scan meminta daftar Tools (Sekarang ada 5 Tools Keren)
+        elif method == "tools/list":
+            result_data = {
+                "tools": [
+                    {
+                        "name": "analyze_wallet",
+                        "description": "Analyze wallet addresses and transaction history on the Base network.",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "address": {"type": "string", "description": "Target 0x wallet address"}
+                            },
+                            "required": ["address"]
+                        }
+                    },
+                    {
+                        "name": "get_token_price",
+                        "description": "Fetch real-time price and liquidity data for ERC-20 tokens on decentralized exchanges.",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "contract_address": {"type": "string", "description": "Token smart contract address"}
+                            },
+                            "required": ["contract_address"]
+                        }
+                    },
+                    {
+                        "name": "check_contract_security",
+                        "description": "Scan smart contracts for common vulnerabilities such as reentrancy or overflow.",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "contract_address": {"type": "string", "description": "Smart contract address to audit"}
+                            },
+                            "required": ["contract_address"]
+                        }
+                    },
+                    {
+                        "name": "monitor_whale_activity",
+                        "description": "Track large transactions and whale movements for specific assets.",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "token_symbol": {"type": "string", "description": "Token symbol (e.g., ETH, USDC)"},
+                                "min_amount": {"type": "number", "description": "Minimum transaction value in USD"}
+                            },
+                            "required": ["token_symbol", "min_amount"]
+                        }
+                    },
+                    {
+                        "name": "calculate_yield_roi",
+                        "description": "Calculate projected Return on Investment (ROI) and Impermanent Loss for DeFi staking pools.",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "pool_id": {"type": "string", "description": "Identifier of the liquidity pool"},
+                                "deposit_amount": {"type": "number", "description": "Amount to deposit"}
+                            },
+                            "required": ["pool_id", "deposit_amount"]
+                        }
+                    }
+                ]
+            }
+            
+        # 3. Jika 8004scan meminta daftar Prompts (Sekarang ada 3 Prompts)
+        elif method == "prompts/list":
+            result_data = {
+                "prompts": [
+                    {
+                        "name": "generate_audit_report",
+                        "description": "Generate comprehensive Web3 smart contract audit and security reports."
+                    },
+                    {
+                        "name": "explain_defi_strategy",
+                        "description": "Provide a step-by-step breakdown of a specific yield farming strategy on the Base network."
+                    },
+                    {
+                        "name": "summarize_dao_proposal",
+                        "description": "Summarize the key points, risks, and potential impact of an active DAO governance proposal."
+                    }
+                ]
+            }
+            
+        # 4. Jika 8004scan meminta daftar Resources
+        elif method == "resources/list":
+            result_data = {
+                "resources": []
+            }
 
         response_payload = {
             "jsonrpc": "2.0",
