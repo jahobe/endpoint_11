@@ -355,12 +355,25 @@ async def mcp_receive_command(agent_id: str, request: Request):
                 ]
             }
             
+        # 4. KITA TAMBAHKAN RESOURCES DI SINI!
         elif method == "resources/list":
             result_data = {
-                "resources": []
+                "resources": [
+                    {
+                        "uri": "file:///data/base_network_stats.json",
+                        "name": "Base Network Statistics",
+                        "description": "Real-time statistics of the Base blockchain including TPS, gas fees, and active addresses.",
+                        "mimeType": "application/json"
+                    },
+                    {
+                        "uri": "file:///docs/masterdao_security_guidelines.md",
+                        "name": "MasterDAO Security Guidelines",
+                        "description": "Standard operating procedures and security checklists for DeFi smart contract audits.",
+                        "mimeType": "text/markdown"
+                    }
+                ]
             }
             
-        # Penutup 'else' HARUS selalu berada di paling akhir blok IF/ELIF
         else:
             result_data = {"status": "success", "message": f"Command received for {agent_id}"}
 
